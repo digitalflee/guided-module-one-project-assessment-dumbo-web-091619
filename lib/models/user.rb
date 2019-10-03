@@ -51,6 +51,7 @@ class User < ActiveRecord::Base
       TTY.select("pick an event", myEvents)
       self.main_menu
   end 
+  
 end
     
   

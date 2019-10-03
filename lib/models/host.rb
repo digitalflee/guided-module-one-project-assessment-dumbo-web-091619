@@ -28,7 +28,13 @@
            passwordVar = TTY::Prompt.new.mask("What is your password?")
            current_user = Host.find_by(username: username, password: passwordVar)
            password = gets.chomp
+           if current_user == nil?
+            puts "Sorry Try Again"
+            sleep 1
+            Host.handle_returning_host
+           else
            current_user.main_menu 
+           end 
 
           
 
@@ -45,6 +51,7 @@
           @@prompt.select("What would you like to do today?") do |menu|
           menu.choice "View My Events", -> {self.display_events}
           menu.choice "Create an Event", -> {self.create_event}
+          menu.choice "Invite Guests", -> {self.select_event}
           menu.choice "Change Event date/time", -> {self.change_event_time}
           menu.choice "Remove an Event", -> {self.remove_event}
           menu.choice "Log Out", -> {`open https://calendar.google.com/`}
@@ -63,6 +70,7 @@
            puts "#{selected_event.time}"
            puts "#{selected_event.location}"
            @@prompt.select("Main Menu") do |menu|
+            menu.choice "view guest list", -> {selected_event.guest_list}
             menu.choice "back", -> {self.main_menu}
            end 
        end 
@@ -87,7 +95,7 @@
                 Event.create(name: name, description: description, date: date, time: time, location: location, host: self)
 
                 self.main_menu
-          end
+        end
 
           def remove_event
 
@@ -120,6 +128,22 @@
 
           end 
 
+         
+          def select_event
+            myEvents = self.events.map { |event| {event.name => event}}
+            if myEvents.size == 0
+              myEvents = ["You don't have any events."]
+              self.main_menu 
+            end
+             puts myEvents 
+            event_selection = @@prompt.select("choose an event to invite guests to", myEvents)
+            event_selection.invite_guests
+  
+          end 
+        
+
+
+
           # def changetime
           #   #changes time
           #   puts "make your change"
@@ -136,8 +160,8 @@
         
          
 
-     end
-    #end 
+     
+  end 
   #end
   
 
